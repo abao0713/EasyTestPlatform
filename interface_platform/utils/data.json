@@ -1,0 +1,77 @@
+[
+  {
+    "config": {
+      "name": "testcase description",
+      "variables": {
+        "dd": 0
+      },
+      "parameters": {
+        "ad": 0
+      },
+      "request": {
+        "dd": 0
+      },
+      "setup_hooks": [
+        "${hook_print(setup)}"
+      ],
+      "teardown_hooks": [
+        "${hook_print(teardown)}"
+      ]
+    }
+  },
+  {
+    "test": {
+      "name": "/api/users/1000",
+      "request": {
+        "headers": {
+          "Content-Type": "application/json",
+          "User-Agent": "python-requests/2.18.4",
+          "device_sn": "FwgRiO7CNA50DSU",
+          "token": "baNLX1zhFYP11Seb"
+        },
+        "json": {
+          "name": "user1",
+          "password": "123456"
+        },
+        "method": "POST",
+        "url": "http://127.0.0.1:5000/api/users/1000",
+        "extract": {
+          "token": "content.token"
+        }
+      },
+      "validate": [
+        {
+          "eq": [
+            "status_code",
+            201
+          ]
+        },
+        {
+          "eq": [
+            "headers.Content-Type",
+            "application/json"
+          ]
+        },
+        {
+          "eq": [
+            "content.success",
+            true
+          ]
+        },
+        {
+          "eq": [
+            "content.msg",
+            "user created successfully."
+          ]
+        }
+      ],
+      "setup_hooks": [
+        "${setup_hook_prepare_kwargs($request)}",
+        "${setup_hook_httpntlmauth($request)}"
+      ],
+      "teardown_hooks": [
+        "${teardown_hook_sleep_N_secs($response, 2)}"
+      ]
+    }
+  }
+]
