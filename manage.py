@@ -9,8 +9,8 @@
 from mainApp import create_app
 from flask_script import Manager
 from flask_migrate import Migrate, MigrateCommand
-from models.table import *
-from routes import app_user
+from interface_platform.models.table import *
+from interface_platform.routes import app_user
 
 app = create_app("develop")
 app.register_blueprint(app_user, url_prefix='/user')
