@@ -5,7 +5,9 @@
 
 
 import os
+import redis as redis
 from environs import Env
+import logging
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 
@@ -16,7 +18,40 @@ class Config(object):
     FLASKY_MAIL_SUBJECT_PREFIX = '[Flasky]'
     FLASKY_MAIL_SENDER = 'Flasky Admin <flasky@example.com>'
     FLASKY_ADMIN = os.environ.get('FLASKY_ADMIN')
+    # flask_redis配置
+    REDIS_HOST = "127.0.0.1"
+    REDIS_PORT = 6379
+    REDIS_URL = "redis://:305634841@localhost:6379/0"
+    # flask_session的配置
+    SESSION_TYPE = "redis"
+    SESSION_REDIS = redis.StrictRedis(host=REDIS_HOST, port=REDIS_PORT, password=305634841)
+    SESSION_USE_SIGNER = True  # 对cookies的session_id进行隐藏处理
+    PERMANENT_SESSION_LIFETIME = 86400  # session数据有效期秒
+    # 日志配置 ###############################################################
+    LOG_PATH = os.path.join(basedir, "logs", "falling-wind-service.log")
+    LOG_FORMATTER = (
+        "%(asctime)s [%(name)s] [%(thread)d:%(threadName)s] "
+        "%(filename)s:%(module)s:%(funcName)s "
+        "in %(lineno)d] "
+        "[%(levelname)s]: %(message)s"
+    )
+    LOG_MAX_BYTES = 50 * 1024 * 1024  # 日志文件大小
+    LOG_BACKUP_COUNT = 10  # 备份文件数量
+    LOG_INTERVAL = 1
+    LOG_WHEN = "D"
 
+    # 设置邮件发送相关参数
+    EMAIL_HOST = "smtp.163.com"
+    EMAIL_USER = env.str("EMAIL_PASSWORD", default="13686821736@163.com")
+    EMAIL_PORT = "25"
+    # 邮箱授权码
+    EMAIL_PASSWORD = env.str("EMAIL_SENDER", default="a305634841")
+    EMAIL_SENDER = env.str("EMAIL_PASSWORD", default="13686821736@163.com")
+    EMAIL_TITLE = "Interface Test Report"
+    # 收件人
+    EMAIL_RECEIVER = "305634841@qq.com,2870550420@qq.com"
+    # 缓存设置
+    CACHE_TYPE = "redis"
     # 静态回调, 引入APP
     @staticmethod
     def init_app(app):
@@ -29,12 +64,9 @@ class Config(object):
 
 class DevelopmentConfig(Config):
     DEBUG = True
-    MAIL_SERVER = 'smtp.googlemail.com'
-    MAIL_PORT = 587
     MAIL_USE_TLS = True
-    MAIL_USERNAME = os.environ.get('MAIL_USERNAME')
-    MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')
-    SQLALCHEMY_DATABASE_URI = os.environ.get('DEV_DATABASE_URL') or  'sqlite:///' + os.path.join(basedir, 'data-dev.sqlite')
+    SQLALCHEMY_DATABASE_URI = env.str('DEV_DATABASE_URL',default="mysql+pymysql://root:305634841@127.0.0.1/flasken?charset=utf8")
+    SQLALCHEMY_MIGRATE_REPO = os.path.join(basedir, 'db_repository')
 
     @classmethod
     def init_app(cls, app):
@@ -42,7 +74,7 @@ class DevelopmentConfig(Config):
 
 class TestingConfig(Config):
     TESTING = True
-    SQLALCHEMY_DATABASE_URI = os.environ.get('TEST_DATABASE_URL') or 'sqlite:///' + os.path.join(basedir, 'data-test.sqlite')
+    SQLALCHEMY_DATABASE_URI = env.str('DEV_DATABASE_URL',default="mysql+pymysql://root:305634841@127.0.0.1/flasken?charset=utf8")
 
 
 class ProductionConfig(Config):
@@ -55,54 +87,4 @@ config = {
     'default': DevelopmentConfig
 }
 
-import redis
-import logging
 
-
-class Config(object):
-    # DEBUG = True
-    SECRET_KEY = 'kkajsnxwnnjs5586ded'
-    # 数据库
-    SQLALCHEMY_DATABASE_URI = "mysql+mysqlconnector://root:305634841@127.0.0.1:3306/flask_pujen?charset=utf8mb4"
-    SQLALCHEMY_TRACK_MODIFICATIONS = False
-    SQLALCHEMY_COMMIT_TEARDOWN = False
-    # SQLAlchemy会记录所有发给stderr的语句,打印sql语句
-    SQLALCHEMY_ECHO = True
-    # 数据库连接池的大小
-    SQLALCHEMY_POOL_SIZE = 5
-    # 设定连接池的连接超时时间
-    SQLALCHEMY_POOL_TIMEOUT = 15
-
-    # flask_redis配置
-    REDIS_HOST = "127.0.0.1"
-    REDIS_PORT = 6379
-    REDIS_URL = "redis://:305634841@localhost:6379/0"
-    # flask_session的配置
-    SESSION_TYPE = "redis"
-    SESSION_REDIS = redis.StrictRedis(host=REDIS_HOST, port=REDIS_PORT,password=305634841)
-    SESSION_USE_SIGNER = True # 对cookies的session_id进行隐藏处理
-    PERMANENT_SESSION_LIFETIME = 86400 # session数据有效期秒
-    # 设置日志等级
-    LOG_LEVEL = logging.DEBUG
-    # 设置邮件发送相关参数
-    EMAIL_HOST = "smtp.163.com"
-    EMAIL_USER = "13686821736@163.com"
-    EMAIL_PORT= "25"
-    # 邮箱授权码
-    EMAIL_PASSWORD = "a305634841"
-    EMAIL_SENDER = "13686821736@163.com"
-    EMAIL_TITLE = "Interface Test Report"
-    # 收件人
-    EMAIL_RECEIVER = "305634841@qq.com/2870550420@qq.com/3067628559@qq.com"
-    # 缓存设置
-    CACHE_TYPE = "redis"
-class DevelopConfig(Config):
-    DEBUG = True
-class productionConfig(Config):
-    pass
-
-
-config_map ={
-    "develop": DevelopConfig,
-    "online": productionConfig
-}

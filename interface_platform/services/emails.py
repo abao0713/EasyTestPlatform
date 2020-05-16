@@ -5,13 +5,14 @@ from email.mime.text import MIMEText
 
 import os
 
-from HttpRunnerManager.settings import EMAIL_SEND_USERNAME, EMAIL_SEND_PASSWORD
+from config import Config
 
 
 def send_email_reports(receiver, html_report_path):
-    if '@sina.com' in EMAIL_SEND_USERNAME:
+
+    if '@sina.com' in Config.EMAIL_SENDER:
         smtp_server = 'smtp.sina.com'
-    elif '@163.com' in EMAIL_SEND_USERNAME:
+    elif '@163.com' in Config.EMAIL_SENDER:
         smtp_server = 'smtp.163.com'
     else:
         smtp_server = 'smtp.exmail.qq.com'
@@ -29,7 +30,7 @@ def send_email_reports(receiver, html_report_path):
 
     msg = MIMEMultipart('related')
     msg['Subject'] = subject
-    msg['from'] = EMAIL_SEND_USERNAME
+    msg['from'] = Config.EMAIL_SENDER
     msg['to'] = receiver
     msg.attach(att)
     msg.attach(body)
@@ -37,10 +38,10 @@ def send_email_reports(receiver, html_report_path):
     smtp = smtplib.SMTP()
     smtp.connect(smtp_server)
     smtp.starttls()
-    smtp.login(EMAIL_SEND_USERNAME, EMAIL_SEND_PASSWORD)
-    smtp.sendmail(EMAIL_SEND_USERNAME, receiver.split(','), msg.as_string())
+    smtp.login(Config.EMAIL_SENDER, Config.EMAIL_PASSWORD)
+    smtp.sendmail(Config.EMAIL_SENDER, receiver.split(','), msg.as_string())
     smtp.quit()
 
 
 if __name__ == '__main__':
-    send_email_reports('##@qq.com, example@163.com', 'D:\\HttpRunnerManager\\reports\\2018-06-05 15-58-00.html')
+    send_email_reports(Config.EMAIL_RECEIVER, r'E:\Works_Test\Auto_Test\EasyTestPlatform\interface_platform\utils\saseddtest.html')
